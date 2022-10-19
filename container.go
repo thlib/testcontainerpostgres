@@ -1,17 +1,16 @@
-// Package postgrescontainer provides an easy way to start a postgres testcontainer using docker
-package postgrescontainer
+// Package postgrestestcontainer provides an easy way to start a postgres testcontainer using docker
+package postgrestestcontainer
 
 import (
 	"context"
 	"fmt"
 
-	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 // SetupTestDatabase setup a postgres testcontainer
-func SetupTestDatabase(ctx context.Context, init string) (testcontainers.Container, *pgxpool.Pool, error) {
+func SetupTestDatabase(ctx context.Context, tag, init string) (testcontainers.Container, string, error) {
 	const (
 		name = "test_db"
 		user = "postgres"
@@ -20,7 +19,7 @@ func SetupTestDatabase(ctx context.Context, init string) (testcontainers.Contain
 
 	// Create PostgreSQL container request
 	req := testcontainers.ContainerRequest{
-		Image: "postgres:14.5-alpine",
+		Image: "postgres:" + tag,
 		Env: map[string]string{
 			"POSTGRES_DB":       name,
 			"POSTGRES_USER":     user,
@@ -44,28 +43,24 @@ func SetupTestDatabase(ctx context.Context, init string) (testcontainers.Contain
 		Started:          true,
 	})
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to start postgres container: %w", err)
+		return nil, "", fmt.Errorf("failed to start postgres container: %w", err)
 	}
 
 	// Get host and port of PostgreSQL container
 	host, err := container.Host(ctx)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to get host: %w", err)
+		return nil, "", fmt.Errorf("failed to get host: %w", err)
 	}
 
 	port, err := container.MappedPort(ctx, "5432")
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to get port: %w", err)
+		return nil, "", fmt.Errorf("failed to get port: %w", err)
 	}
 
 	conn := fmt.Sprintf("postgres://%v:%v@%v:%v/%v", user, pass, host, port.Port(), name)
-	pool, err := pgxpool.Connect(ctx, conn)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to connect to db: %w", err)
-	}
 
 	// Create db connection string and connect
-	return container, pool, nil
+	return container, conn, nil
 }
 
 // Terminate terminates the container in a defer friendly way
