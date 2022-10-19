@@ -1,5 +1,5 @@
-// Package postgrestestcontainer provides an easy way to start a postgres testcontainer using docker
-package postgrestestcontainer
+// Package testcontainerpostgres provides an easy way to start a postgres testcontainer using docker
+package testcontainerpostgres
 
 import (
 	"context"

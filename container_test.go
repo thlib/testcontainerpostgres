@@ -1,4 +1,4 @@
-package postgrestestcontainer
+package testcontainerpostgres
 
 import (
 	"context"
