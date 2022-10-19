@@ -1,5 +1,5 @@
-// Package postgrestestcontainer provides an easy way to start a postgres testcontainer using docker
-package postgrestestcontainer
+// Package testcontainerpostgres provides an easy way to start a postgres testcontainer using docker
+package testcontainerpostgres
 
 import (
 	"context"
@@ -9,8 +9,8 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-// SetupTestDatabase setup a postgres testcontainer
-func SetupTestDatabase(ctx context.Context, tag, init string) (testcontainers.Container, string, error) {
+// New setup a postgres testcontainer
+func New(ctx context.Context, tag, init string) (testcontainers.Container, string, error) {
 	const (
 		name = "test_db"
 		user = "postgres"

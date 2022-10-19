@@ -1,4 +1,4 @@
-module github.com/timohuovinen/postgrescontainer
+module github.com/thlib/testcontainerpostgres
 
 go 1.19
 
