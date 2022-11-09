@@ -2,6 +2,9 @@
 .vscode
 .idea
 
+# Version control in asdf
+.tool-versions
+
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 

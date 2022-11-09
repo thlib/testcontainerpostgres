@@ -1,8 +1,8 @@
 module github.com/thlib/testcontainerpostgres
 
-go 1.19
+go 1.18
 
-require github.com/testcontainers/testcontainers-go v0.14.0
+require github.com/testcontainers/testcontainers-go v0.15.0
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
