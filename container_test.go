@@ -9,7 +9,7 @@ import (
 
 // TestNew runs an example postgresql container
 func TestNew(t *testing.T) {
-	schemaPath, err := filepath.Abs("example_schema.sql")
+	schemaPath, err := filepath.Abs("./fixtures")
 	if err != nil {
 		t.Fatalf("%v", err)
 	}

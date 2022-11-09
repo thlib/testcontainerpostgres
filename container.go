@@ -33,7 +33,7 @@ func New(ctx context.Context, tag, init string) (testcontainers.Container, strin
 			Source: testcontainers.GenericBindMountSource{
 				HostPath: init,
 			},
-			Target: testcontainers.ContainerMountTarget("/docker-entrypoint-initdb.d/init.sql"),
+			Target: testcontainers.ContainerMountTarget("/docker-entrypoint-initdb.d"),
 		})
 	}
 
