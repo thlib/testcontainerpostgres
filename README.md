@@ -22,6 +22,6 @@ fmt.Println(conn)
 
 ## Run tests
 
-``sh
+```sh
 go test
-``
+```
