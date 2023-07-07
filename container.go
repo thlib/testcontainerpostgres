@@ -55,24 +55,41 @@ func WithEnv(env map[string]string) Option {
 	}
 }
 
+func connectionString(host, port string, env map[string]string) string {
+	if env == nil {
+		return fmt.Sprintf("postgres://%s:%s", host, port)
+	}
+	db, dbOk := env["POSTGRES_DB"]
+	user, userOk := env["POSTGRES_USER"]
+	password, passwordOk := env["POSTGRES_PASSWORD"]
+
+	credentials := user
+	if passwordOk {
+		credentials += fmt.Sprintf(":%s", password)
+	}
+	if userOk {
+		credentials += "@"
+	}
+
+	if dbOk {
+		return fmt.Sprintf("postgres://%s%s:%s/%s", credentials, host, port, db)
+	}
+	return fmt.Sprintf("postgres://%s%s:%s", credentials, host, port)
+}
+
 // New setup a postgres testcontainer
 func New(ctx context.Context, tag string, opts ...Option) (testcontainers.Container, string, error) {
-	const (
-		name = "test_db"
-		user = "postgres"
-		pass = "postgres"
-	)
-
 	// Create PostgreSQL container request
 	req := testcontainers.ContainerRequest{
-		Image: "postgres:" + tag,
-		Env: map[string]string{
-			"POSTGRES_DB":       name,
-			"POSTGRES_USER":     user,
-			"POSTGRES_PASSWORD": pass,
-		},
+		Image:        "postgres:" + tag,
+		Env:          map[string]string{},
 		ExposedPorts: []string{"5432/tcp"},
 		WaitingFor:   wait.ForListeningPort("5432/tcp"),
+	}
+
+	// Apply configs
+	for _, opt := range opts {
+		req = opt(req)
 	}
 
 	// Start PostgreSQL container
@@ -95,7 +112,8 @@ func New(ctx context.Context, tag string, opts ...Option) (testcontainers.Contai
 		return nil, "", fmt.Errorf("failed to get port: %w", err)
 	}
 
-	conn := fmt.Sprintf("postgres://%v:%v@%v:%v/%v", user, pass, host, port.Port(), name)
+	// Build connection string from Env
+	conn := connectionString(host, port.Port(), req.Env)
 
 	// Create db connection string and connect
 	return container, conn, nil

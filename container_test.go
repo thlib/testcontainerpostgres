@@ -18,6 +18,8 @@ func TestNew(t *testing.T) {
 	ctx := context.Background()
 	postgresC, conn, err := testcontainerpostgres.New(ctx, "14.5-alpine",
 		testcontainerpostgres.WithInit(schemaPath),
+		testcontainerpostgres.WithDb("test_db"),
+		testcontainerpostgres.WithAuth("postgres", "postgres"),
 	)
 	if err != nil {
 		t.Fatalf("%v", err)
