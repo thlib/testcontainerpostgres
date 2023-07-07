@@ -9,8 +9,54 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
+type Option func(testcontainers.ContainerRequest) testcontainers.ContainerRequest
+
+// WithInit adds a path to a folder containing sql files to be executed on startup
+func WithInit(init string) Option {
+	return func(req testcontainers.ContainerRequest) testcontainers.ContainerRequest {
+		req.Mounts = testcontainers.Mounts(testcontainers.ContainerMount{
+			Source: testcontainers.GenericBindMountSource{
+				HostPath: init,
+			},
+			Target: testcontainers.ContainerMountTarget("/docker-entrypoint-initdb.d"),
+		})
+		return req
+	}
+}
+
+// WithDb adds a database name to the container request
+func WithDb(db string) Option {
+	return func(req testcontainers.ContainerRequest) testcontainers.ContainerRequest {
+		if req.Env == nil {
+			req.Env = make(map[string]string)
+		}
+		req.Env["POSTGRES_DB"] = db
+		return req
+	}
+}
+
+// WithAuth adds a username and password to the container request
+func WithAuth(user, pass string) Option {
+	return func(req testcontainers.ContainerRequest) testcontainers.ContainerRequest {
+		if req.Env == nil {
+			req.Env = make(map[string]string)
+		}
+		req.Env["POSTGRES_USER"] = user
+		req.Env["POSTGRES_PASSWORD"] = pass
+		return req
+	}
+}
+
+// WithEnv replaces the environment variables of the container request
+func WithEnv(env map[string]string) Option {
+	return func(req testcontainers.ContainerRequest) testcontainers.ContainerRequest {
+		req.Env = env
+		return req
+	}
+}
+
 // New setup a postgres testcontainer
-func New(ctx context.Context, tag, init string) (testcontainers.Container, string, error) {
+func New(ctx context.Context, tag string, opts ...Option) (testcontainers.Container, string, error) {
 	const (
 		name = "test_db"
 		user = "postgres"
@@ -27,14 +73,6 @@ func New(ctx context.Context, tag, init string) (testcontainers.Container, strin
 		},
 		ExposedPorts: []string{"5432/tcp"},
 		WaitingFor:   wait.ForListeningPort("5432/tcp"),
-	}
-	if init != "" {
-		req.Mounts = testcontainers.Mounts(testcontainers.ContainerMount{
-			Source: testcontainers.GenericBindMountSource{
-				HostPath: init,
-			},
-			Target: testcontainers.ContainerMountTarget("/docker-entrypoint-initdb.d"),
-		})
 	}
 
 	// Start PostgreSQL container
