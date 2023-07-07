@@ -11,7 +11,7 @@ import (
 
 // TestNew runs an example postgresql container
 func TestNew(t *testing.T) {
-	schemaPath, err := filepath.Abs("./fixtures")
+	schemaPath, err := filepath.Abs("./initdb")
 	if err != nil {
 		t.Fatalf("%v", err)
 	}
