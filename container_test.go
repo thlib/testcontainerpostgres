@@ -1,10 +1,12 @@
-package testcontainerpostgres
+package testcontainerpostgres_test
 
 import (
 	"context"
 	"path/filepath"
 	"regexp"
 	"testing"
+
+	"github.com/thlib/testcontainerpostgres"
 )
 
 // TestNew runs an example postgresql container
@@ -14,11 +16,11 @@ func TestNew(t *testing.T) {
 		t.Fatalf("%v", err)
 	}
 	ctx := context.Background()
-	postgresC, conn, err := New(ctx, "14.5-alpine", schemaPath)
+	postgresC, conn, err := testcontainerpostgres.New(ctx, "14.5-alpine", schemaPath)
 	if err != nil {
 		t.Fatalf("%v", err)
 	}
-	defer Terminate(ctx, postgresC)
+	defer testcontainerpostgres.Terminate(ctx, postgresC)
 
 	expected := regexp.QuoteMeta("postgres://postgres:postgres@localhost:") + "[0-9]+" + regexp.QuoteMeta("/test_db")
 	rx, err := regexp.Compile(expected)
